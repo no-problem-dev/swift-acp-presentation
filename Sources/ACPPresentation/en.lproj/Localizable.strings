@@ -1,0 +1,11 @@
+"activity.idle" = "Idle";
+"activity.working" = "Working";
+"activity.completed" = "Done";
+
+"tool.read" = "Reading a file";
+"tool.edit" = "Editing";
+"tool.search" = "Searching the web";
+"tool.execute" = "Running a command";
+"tool.fetch" = "Fetching a page";
+"tool.think" = "Thinking";
+"tool.default" = "Using a tool";

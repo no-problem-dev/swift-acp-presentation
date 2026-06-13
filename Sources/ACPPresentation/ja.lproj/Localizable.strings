@@ -1,0 +1,11 @@
+"activity.idle" = "待機中";
+"activity.working" = "作業しています";
+"activity.completed" = "完了";
+
+"tool.read" = "ファイルを読んでいます";
+"tool.edit" = "編集しています";
+"tool.search" = "Web を検索しています";
+"tool.execute" = "コマンドを実行しています";
+"tool.fetch" = "ページを読み込んでいます";
+"tool.think" = "考えています";
+"tool.default" = "ツールを使っています";
