@@ -96,7 +96,7 @@ case .completed: // セッション完了
 // 実行計画（エージェントが計画を報告した場合）
 for entry in state.plan {
     print(entry.content)   // "search the web"
-    print(entry.priority)  // .high / .normal / .low
+    print(entry.priority)  // .high / .medium / .low
     print(entry.status)    // .pending / .inProgress / .completed / ...
 }
 

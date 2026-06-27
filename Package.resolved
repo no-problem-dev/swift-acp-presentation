@@ -1,0 +1,15 @@
+{
+  "originHash" : "b0bd4345588a9a3cb31b14adb0c3a713f9fbde6cc1d68ff844618bbbaefb6976",
+  "pins" : [
+    {
+      "identity" : "swift-acp",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/no-problem-dev/swift-acp.git",
+      "state" : {
+        "revision" : "f93773f8b2be3cf1c4980e5d4444bd82e39d281a",
+        "version" : "0.1.0"
+      }
+    }
+  ],
+  "version" : 3
+}
