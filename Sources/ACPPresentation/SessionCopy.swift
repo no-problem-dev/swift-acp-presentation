@@ -1,17 +1,18 @@
 import Foundation
 import ACPCore
 
-/// Turns the semantic facts in a `SessionViewState` into localized, user-facing
-/// wording. This is the *only* place agent-activity copy lives — the agent and
-/// the protocol never spell out a phrase like "Searching the web"; they report
-/// `tool_call.kind == .search` and this layer localizes it.
+/// セマンティックな活動情報をローカライズ済みのユーザー向け文言に変換するコピー層。
+///
+/// エージェントとプロトコルは「何が起きているか」という意味（例: `tool_call.kind == .search`）だけを送出し、
+/// "Web を検索しています" のような表示文言はすべてこの型が担う。
+/// 状態を持たない名前空間として機能する。
 public enum SessionCopy {
-    /// A localized "doing X" phrase for a tool call's kind.
+    /// ツール呼び出しの種別に対応するローカライズ済み実行中フレーズを返す。
     public static func toolActivity(_ kind: ToolKind) -> String {
         localized(toolKey(for: kind))
     }
 
-    /// A localized phrase for the session's overall activity.
+    /// セッション全体のアクティビティ状態に対応するローカライズ済みラベルを返す。
     public static func activity(_ activity: SessionViewState.Activity) -> String {
         switch activity {
         case .idle: localized("activity.idle")

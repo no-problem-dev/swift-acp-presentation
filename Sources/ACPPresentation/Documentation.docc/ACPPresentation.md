@@ -4,13 +4,13 @@ ACP の `session/update` ストリームを UI 非依存のビューステート
 
 ## Overview
 
-`ACPPresentation` は ACP プロトコルが流すセマンティックなエージェント活動（ツール呼び出しの種別・状態、実行プラン、応答テキスト）を受け取り、SwiftUI などの View が直接バインドできる ``SessionViewState`` へ折りたたみます。
+`ACPPresentation` は ACP プロトコルが流すセマンティックなエージェント活動（ツール呼び出しの種別・状態、実行プラン、応答テキスト）を受け取り、SwiftUI などの View が直接バインドできる ``SessionViewState`` へ折りたたむ。
 
-**セマンティクスと表現の分離**が設計の核心です。エージェントとプロトコルは「何が起きているか」という意味だけを送出し、「どう表示するか」「どう言葉にするか」はすべてこのライブラリが担います。"Searching the web" のような文言はここにしか存在しません。
+**セマンティクスと表現の分離**が設計の核心。エージェントとプロトコルは「何が起きているか」という意味だけを送出し、「どう表示するか」「どう言葉にするか」はすべてこのライブラリが担う。"Searching the web" のような文言はここにしか存在しない。
 
 ### 状態の折りたたみ
 
-``SessionViewState`` は ``SessionViewState/reduce(_:)`` でストリーム全体をまとめて、または ``SessionViewState/apply(_:)`` でイベントを 1 件ずつ積算して生成します。
+``SessionViewState`` は ``SessionViewState/reduce(_:)`` でストリーム全体をまとめて、または ``SessionViewState/apply(_:)`` でイベントを 1 件ずつ積算して生成する。
 
 ```swift
 import ACPPresentation
@@ -28,16 +28,16 @@ for await update in session.updates {
 
 ### 文言のローカライズ
 
-``SessionCopy`` はツール種別やセッション全体のアクティビティを String Catalog（日本語デフォルト）でローカライズし、文字列として返します。View は ``SessionCopy/toolActivity(_:)`` や ``SessionCopy/activity(_:)`` を呼ぶだけで、ツール種別・状態ごとのラベルを得られます。
+``SessionCopy`` はツール種別やセッション全体のアクティビティを String Catalog（日本語デフォルト）でローカライズし、文字列として返す。View は ``SessionCopy/toolActivity(_:)`` や ``SessionCopy/activity(_:)`` を呼ぶだけで、ツール種別・状態ごとのラベルを得られる。
 
 ```swift
 import ACPPresentation
 
 // ツール呼び出し行の見出し
-let label = SessionCopy.toolActivity(toolCallView.kind)  // 例: "ファイルを読み込み中"
+let label = SessionCopy.toolActivity(toolCallView.kind)  // 例: "ファイルを読んでいます"
 
 // セッション全体のステータス表示
-let status = SessionCopy.activity(state.activity)        // 例: "考え中…"
+let status = SessionCopy.activity(state.activity)        // 例: "作業しています"
 ```
 
 ## Topics

@@ -1,28 +1,32 @@
 import ACPCore
 
-/// A UI-agnostic, semantic snapshot of an agent session, reduced from the ACP
-/// `session/update` stream. It carries *meaning* (a tool call's kind and
-/// status, the plan, the answer text) — never presentation. Turning this into
-/// labels, icons, and localized phrases is the job of the copy layer and the
-/// view, so wording stays out of the domain.
+/// ACP の `session/update` ストリームをリデュースした UI 非依存のセマンティックスナップショット。
+///
+/// ツール呼び出しの種別・ステータス、実行プラン、応答テキストなど「意味」だけを保持し、
+/// 表示文言やアイコンは持たない。View 向けラベルやフレーズへの変換は ``SessionCopy`` と View が担う。
 public struct SessionViewState: Equatable, Sendable {
+    /// セッション全体の活動状態。
     public enum Activity: Equatable, Sendable {
+        /// 初期状態。まだ更新を受け取っていない。
         case idle
+        /// ツール呼び出しまたは推論チャンクを受け取り、処理中。
         case working
+        /// 完了状態。`apply`/`reduce` は設定しないため、利用側が明示的に設定したときのみ取る値。
         case completed
     }
 
-    /// Overall activity, derived from the stream.
+    /// ストリームから導出したセッション全体の活動状態。
     public var activity: Activity
-    /// The agent's current execution plan, if reported.
+    /// エージェントが報告した実行計画。未報告の場合は空。
     public var plan: [PlanEntry]
-    /// Tool calls in announcement order, keyed by id so updates correlate.
+    /// 告知順のツールコール一覧。id でアップデートを相関付ける。
     public var toolCalls: [ToolCallView]
-    /// The agent's answer text (message chunks, in order).
+    /// エージェントの回答テキスト（チャンク順）。
     public var messages: [String]
-    /// The agent's surfaced reasoning, in order.
+    /// エージェントの表面化された推論ログ（チャンク順）。
     public var thoughts: [String]
 
+    /// 各フィールドを指定して状態を生成する。すべて既定値を持ち、引数なしで初期状態（`activity: .idle`・各コレクション空）になる。
     public init(
         activity: Activity = .idle,
         plan: [PlanEntry] = [],
@@ -37,8 +41,9 @@ public struct SessionViewState: Equatable, Sendable {
         self.thoughts = thoughts
     }
 
-    /// Reduce one update into the state. Pure and total — every `SessionUpdate`
-    /// case is handled, so the whole stream is covered by tests of this method.
+    /// 1 件の `SessionUpdate` を状態に適用する。
+    ///
+    /// 全域的 — すべての `SessionUpdate` ケースを網羅的に処理する。ストリーム全体のテストはこのメソッドを通じて完結する。
     public mutating func apply(_ update: SessionUpdate) {
         switch update {
         case let .toolCall(call):
@@ -77,7 +82,7 @@ public struct SessionViewState: Equatable, Sendable {
         }
     }
 
-    /// Build a state by reducing a whole sequence of updates.
+    /// 一連の `SessionUpdate` シーケンスをリデュースして新しい `SessionViewState` を生成する。
     public static func reduce(_ updates: some Sequence<SessionUpdate>) -> SessionViewState {
         var state = SessionViewState()
         for update in updates { state.apply(update) }
@@ -85,14 +90,20 @@ public struct SessionViewState: Equatable, Sendable {
     }
 }
 
-/// A tool call as the UI sees it: identity plus the semantic kind/status that a
-/// view turns into an icon and a localized status phrase.
+/// UI 向けのツールコール表現。
+///
+/// ID・タイトル・種別・ステータスを保持し、View がアイコンとローカライズ済み文言に変換する。
 public struct ToolCallView: Equatable, Sendable, Identifiable {
+    /// ツール呼び出しの識別子。アップデートを既存の呼び出しに相関付けるキー。
     public let id: ToolCallId
+    /// エージェントが報告したツール呼び出しの見出し。アップデートで更新されうる。
     public var title: String
+    /// ツールの種別。アイコンやローカライズ済み文言への変換に使う。
     public var kind: ToolKind
+    /// 実行状態（進行中・完了・失敗など）。
     public var status: ToolCallStatus
 
+    /// 各フィールドを指定してツールコール表現を生成する。
     public init(id: ToolCallId, title: String, kind: ToolKind, status: ToolCallStatus) {
         self.id = id
         self.title = title
@@ -102,7 +113,7 @@ public struct ToolCallView: Equatable, Sendable, Identifiable {
 }
 
 private extension ContentChunk {
-    /// The plain text of a chunk whose content is a text block, if any.
+    /// コンテンツがテキストブロックの場合にプレーンテキストを返す。
     var text: String? {
         if case let .text(value) = content { return value.text }
         return nil

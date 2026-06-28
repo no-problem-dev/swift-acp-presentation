@@ -5,34 +5,36 @@ tags: [swift, acp, presentation, spm]
 status: active
 ---
 
+English | [日本語](./README.ja.md)
+
 # swift-acp-presentation
 
-> ACP の `session/update` ストリームを UI-agnostic な `SessionViewState` に変換し、ユーザー向け文言をホスト側でカプセル化するプレゼンテーション層パッケージ。
+> A presentation-layer package that converts ACP `session/update` streams into the UI-agnostic `SessionViewState` and encapsulates all user-facing copy on the host side.
 
-## 概要
+## Overview
 
-`swift-acp-presentation` は、[swift-acp](https://github.com/no-problem-dev/swift-acp) が提供するエージェント活動ストリーム（`SessionUpdate`）を画面描画に必要な状態へ変換する責務を担う。
+`swift-acp-presentation` is responsible for converting the agent activity stream (`SessionUpdate`) provided by [swift-acp](https://github.com/no-problem-dev/swift-acp) into the state required for screen rendering.
 
-ドメイン（エージェント・プロトコル）は意味論（`tool_call.kind == .search`）だけを送出し、「Web を検索しています」のような表示文言はこのパッケージ内の String Catalog にのみ置く設計になっている。これにより、文言変更やローカライズ対応がドメイン層を変更せず完結する。
+The domain (agent/protocol) emits only semantics (`tool_call.kind == .search`), while display phrases like "Searching the web" live exclusively in this package's String Catalog. This means copy changes and localization can be completed without modifying the domain layer.
 
-### 提供モジュール
+### Modules
 
-| モジュール | 説明 |
+| Module | Description |
 |---|---|
-| `ACPPresentation` | `SessionViewState` リデューサーと `SessionCopy` コピー層を提供する |
+| `ACPPresentation` | Provides the `SessionViewState` reducer and the `SessionCopy` copy layer |
 
-### 主な型
+### Key Types
 
-| 型 | 種別 | 説明 |
+| Type | Kind | Description |
 |---|---|---|
-| `SessionViewState` | struct | ACP `session/update` ストリームをリデュースした UI スナップショット |
-| `SessionViewState.Activity` | enum | セッション全体の活動状態（`.idle` / `.working` / `.completed`） |
-| `ToolCallView` | struct | ツールコールの ID・タイトル・種別・ステータスを保持する UI 向けビュー |
-| `SessionCopy` | enum | ローカライズ済み文言を返すコピーレイヤー（状態を持たない名前空間） |
+| `SessionViewState` | struct | A UI snapshot reduced from the ACP `session/update` stream |
+| `SessionViewState.Activity` | enum | Overall session activity state (`.idle` / `.working` / `.completed`) |
+| `ToolCallView` | struct | A UI-facing view of a tool call holding its ID, title, kind, and status |
+| `SessionCopy` | enum | A copy layer that returns localized phrases (a stateless namespace) |
 
-## 対応プラットフォーム
+## Supported Platforms
 
-| プラットフォーム | 最低バージョン |
+| Platform | Minimum Version |
 |---|---|
 | iOS | 16.0 |
 | macOS | 13.0 |
@@ -40,9 +42,9 @@ status: active
 | watchOS | 9.0 |
 | visionOS | 1.0 |
 
-## インストール
+## Installation
 
-`Package.swift` に依存を追加する。
+Add the dependency to your `Package.swift`.
 
 ```swift
 dependencies: [
@@ -61,21 +63,21 @@ targets: [
 ]
 ```
 
-## 使い方
+## Usage
 
-### SessionViewState — ストリームのリデュース
+### SessionViewState — Reducing the Stream
 
-`apply(_:)` で 1 件ずつ適用するか、`reduce(_:)` で一括変換する。
+Apply one update at a time with `apply(_:)`, or convert in bulk with `reduce(_:)`.
 
 ```swift
 import ACPCore
 import ACPPresentation
 
-// ストリームを一括リデュース
+// Reduce the entire stream at once
 let updates: [SessionUpdate] = fetchSessionUpdates()
 let state = SessionViewState.reduce(updates)
 
-// ストリームをインクリメンタルに適用する場合
+// Apply incrementally as the stream arrives
 var state = SessionViewState()
 for update in liveStream {
     state.apply(update)
@@ -83,24 +85,24 @@ for update in liveStream {
 }
 ```
 
-### SessionViewState のプロパティ
+### SessionViewState Properties
 
 ```swift
-// セッション全体の活動状態
+// Overall session activity
 switch state.activity {
-case .idle:      // エージェントは待機中
-case .working:   // ツール呼び出しまたは思考中
-case .completed: // セッション完了
+case .idle:      // Agent is waiting
+case .working:   // Tool call or thinking in progress
+case .completed: // Set externally; not emitted by apply/reduce
 }
 
-// 実行計画（エージェントが計画を報告した場合）
+// Execution plan (if the agent reported one)
 for entry in state.plan {
     print(entry.content)   // "search the web"
     print(entry.priority)  // .high / .medium / .low
     print(entry.status)    // .pending / .inProgress / .completed / ...
 }
 
-// ツールコール一覧（告知順、id で更新が相関付けられる）
+// Tool calls in announcement order (id correlates updates)
 for call in state.toolCalls {
     print(call.id)     // ToolCallId
     print(call.title)  // "search"
@@ -108,28 +110,28 @@ for call in state.toolCalls {
     print(call.status) // .inProgress / .completed / .failed
 }
 
-// エージェントの回答テキスト（チャンク順）
+// Agent answer text (chunk order)
 let fullAnswer = state.messages.joined()
 
-// エージェントの推論ログ（チャンク順）
+// Agent reasoning log (chunk order)
 let reasoningLog = state.thoughts.joined(separator: "\n")
 ```
 
-### SessionCopy — ローカライズ済み文言の取得
+### SessionCopy — Retrieving Localized Phrases
 
 ```swift
 import ACPPresentation
 
-// ツール種別 → 実行中フレーズ（日本語: "Web を検索しています"）
+// ToolKind → "doing X" phrase (Japanese default: "Web を検索しています")
 let phrase = SessionCopy.toolActivity(.search)
 
-// セッション活動状態 → ラベル（日本語: "作業しています"）
+// Session activity → label (Japanese default: "作業しています")
 let label = SessionCopy.activity(.working)
 ```
 
-#### 対応ツール種別と文言（日本語 / 英語）
+#### Supported Tool Kinds and Phrases (Japanese / English)
 
-| `ToolKind` | 日本語 | 英語 |
+| `ToolKind` | Japanese | English |
 |---|---|---|
 | `.read` | ファイルを読んでいます | Reading a file |
 | `.edit` | 編集しています | Editing |
@@ -137,11 +139,11 @@ let label = SessionCopy.activity(.working)
 | `.execute` | コマンドを実行しています | Running a command |
 | `.fetch` | ページを読み込んでいます | Fetching a page |
 | `.think` | 考えています | Thinking |
-| その他 | ツールを使っています | Using a tool |
+| (unknown) | ツールを使っています | Using a tool |
 
-未知の `ToolKind` はフォールバックフレーズ（`tool.default`）を返す。
+Unknown `ToolKind` values fall back to the default phrase (`tool.default`).
 
-### SwiftUI での統合例
+### SwiftUI Integration Example
 
 ```swift
 import SwiftUI
@@ -183,31 +185,31 @@ struct SessionStatusView: View {
 }
 ```
 
-## アーキテクチャ上の位置づけ
+## Architecture
 
 ```
 swift-acp (ACPCore)
     └── SessionUpdate, ToolCall, ToolKind, Plan, ...
             │
             ▼
-swift-acp-presentation (ACPPresentation)          ← このパッケージ
-    ├── SessionViewState  — セマンティクスのリデュース
-    └── SessionCopy       — ローカライズ済み文言の提供
+swift-acp-presentation (ACPPresentation)          ← this package
+    ├── SessionViewState  — semantic reduction
+    └── SessionCopy       — localized phrases
             │
             ▼
 Host App / SwiftUI View
-    — SessionViewState のプロパティでビューを構築
-    — SessionCopy で文言を取得
+    — Build views from SessionViewState properties
+    — Retrieve phrases via SessionCopy
 ```
 
-- `swift-acp` はプロトコルとドメイン型のみを保持する。文言を持たない。
-- `swift-acp-presentation` がプレゼンテーション責務を担う。ドメインへの依存は `ACPCore` のみ。
-- ホストアプリはこのパッケージを経由して状態と文言を取得し、SwiftUI ビューを構築する。
+- `swift-acp` holds only protocol and domain types. It carries no copy.
+- `swift-acp-presentation` owns the presentation responsibility. Its only domain dependency is `ACPCore`.
+- The host app obtains state and copy through this package and constructs SwiftUI views.
 
-## ライセンス
+## License
 
-MIT License — 詳細は [LICENSE](./LICENSE) を参照。
+MIT License — see [LICENSE](./LICENSE) for details.
 
 ---
 
-最終更新: 2026-06-27
+Last updated: 2026-06-27
