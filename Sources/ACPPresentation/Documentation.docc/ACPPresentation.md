@@ -1,58 +1,58 @@
 # ``ACPPresentation``
 
-ACP の `session/update` ストリームを UI 非依存のビューステートに変換し、全ユーザー向け文言を一元管理するプレゼンテーション層。
+The presentation layer that converts the ACP `session/update` stream into a UI-agnostic view state and owns all user-facing copy in one place.
 
-> **非公式。** Agent Client Protocol の作者とは何の関係もなく、承認も受けていない。土台にしているのは同プロトコルの非公式な Swift 実装である。仕様に準拠することはこのプロジェクトの目標ではない。
+> **Unofficial.** Not affiliated with or endorsed by the authors of the Agent Client Protocol, and built on an unofficial Swift implementation of it. Conforming to the specification is not a goal of this project.
 
 ## Overview
 
-`ACPPresentation` は ACP プロトコルが流すセマンティックなエージェント活動（ツール呼び出しの種別・状態、実行プラン、応答テキスト）を受け取り、SwiftUI などの View が直接バインドできる ``SessionViewState`` へ折りたたむ。
+`ACPPresentation` takes the semantic agent activity the ACP protocol streams (the kind and status of tool calls, the execution plan, the response text) and folds it into a ``SessionViewState`` that a view — SwiftUI or otherwise — can bind to directly.
 
-**セマンティクスと表現の分離**が設計の核心。エージェントとプロトコルは「何が起きているか」という意味だけを送出し、「どう表示するか」「どう言葉にするか」はすべてこのライブラリが担う。"Searching the web" のような文言はここにしか存在しない。
+**Separating semantics from presentation** is the heart of the design. The agent and the protocol emit only the meaning of what is happening; how it is displayed and how it is worded is entirely this library's job. Wording such as "Searching the web" exists nowhere else.
 
-### 状態の折りたたみ
+### Folding the state
 
-``SessionViewState`` は ``SessionViewState/reduce(_:)`` でストリーム全体をまとめて、または ``SessionViewState/apply(_:)`` でイベントを 1 件ずつ積算して生成する。
+``SessionViewState`` is produced either by folding the whole stream at once with ``SessionViewState/reduce(_:)``, or by accumulating events one at a time with ``SessionViewState/apply(_:)``.
 
 ```swift
 import ACPPresentation
 import ACPCore
 
-// ストリーム全体をまとめて畳み込む
+// Fold the whole stream at once
 let state = SessionViewState.reduce(updates)
 
-// 受信のたびにインクリメンタルに適用する
+// Or apply incrementally as updates arrive
 var state = SessionViewState()
 for await update in session.updates {
     state.apply(update)
 }
 ```
 
-### 文言のローカライズ
+### Localizing the copy
 
-``SessionCopy`` はツール種別やセッション全体のアクティビティを String Catalog（日本語デフォルト）でローカライズし、文字列として返す。View は ``SessionCopy/toolActivity(_:)`` や ``SessionCopy/activity(_:)`` を呼ぶだけで、ツール種別・状態ごとのラベルを得られる。
+``SessionCopy`` localizes tool kinds and the session's overall activity through the String Catalog (Japanese is the default) and returns them as strings. A view only has to call ``SessionCopy/toolActivity(_:)`` or ``SessionCopy/activity(_:)`` to get the label for a given tool kind or state.
 
 ```swift
 import ACPPresentation
 
-// ツール呼び出し行の見出し
-let label = SessionCopy.toolActivity(toolCallView.kind)  // 例: "ファイルを読んでいます"
+// The heading for a tool call row
+let label = SessionCopy.toolActivity(toolCallView.kind)  // e.g. "Reading a file"
 
-// セッション全体のステータス表示
-let status = SessionCopy.activity(state.activity)        // 例: "作業しています"
+// The session-wide status display
+let status = SessionCopy.activity(state.activity)        // e.g. "Working"
 ```
 
 ## Topics
 
-### 状態モデル
+### State model
 
 - ``SessionViewState``
 - ``ToolCallView``
 
-### アクティビティ
+### Activity
 
 - ``SessionViewState/Activity``
 
-### ローカライズドテキスト
+### Localized text
 
 - ``SessionCopy``

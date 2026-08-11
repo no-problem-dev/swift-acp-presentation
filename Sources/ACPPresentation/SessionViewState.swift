@@ -1,32 +1,35 @@
 import ACPCore
 
-/// ACP の `session/update` ストリームをリデュースした UI 非依存のセマンティックスナップショット。
+/// A UI-agnostic semantic snapshot, reduced from the ACP `session/update` stream.
 ///
-/// ツール呼び出しの種別・ステータス、実行プラン、応答テキストなど「意味」だけを保持し、
-/// 表示文言やアイコンは持たない。View 向けラベルやフレーズへの変換は ``SessionCopy`` と View が担う。
+/// It holds only meaning — the kind and status of tool calls, the execution plan, the response text —
+/// and no display wording or icons. Turning that into labels and phrases for a view is the job of
+/// ``SessionCopy`` and the view itself.
 public struct SessionViewState: Equatable, Sendable {
-    /// セッション全体の活動状態。
+    /// The session's overall activity state.
     public enum Activity: Equatable, Sendable {
-        /// 初期状態。まだ更新を受け取っていない。
+        /// The initial state. No update has been received yet.
         case idle
-        /// ツール呼び出しまたは推論チャンクを受け取り、処理中。
+        /// A tool call or a thought chunk has arrived and work is in progress.
         case working
-        /// 完了状態。`apply`/`reduce` は設定しないため、利用側が明示的に設定したときのみ取る値。
+        /// The completed state. `apply` and `reduce` never set it, so it only occurs when the
+        /// caller sets it explicitly.
         case completed
     }
 
-    /// ストリームから導出したセッション全体の活動状態。
+    /// The session's overall activity state, derived from the stream.
     public var activity: Activity
-    /// エージェントが報告した実行計画。未報告の場合は空。
+    /// The execution plan the agent reported. Empty when it has reported none.
     public var plan: [PlanEntry]
-    /// 告知順のツールコール一覧。id でアップデートを相関付ける。
+    /// The tool calls in the order they were announced. Updates are correlated by id.
     public var toolCalls: [ToolCallView]
-    /// エージェントの回答テキスト（チャンク順）。
+    /// The agent's response text, in chunk order.
     public var messages: [String]
-    /// エージェントの表面化された推論ログ（チャンク順）。
+    /// The agent's surfaced reasoning log, in chunk order.
     public var thoughts: [String]
 
-    /// 各フィールドを指定して状態を生成する。すべて既定値を持ち、引数なしで初期状態（`activity: .idle`・各コレクション空）になる。
+    /// Creates the state from each field. Every parameter has a default, so calling it with no
+    /// arguments gives the initial state (`activity: .idle`, every collection empty).
     public init(
         activity: Activity = .idle,
         plan: [PlanEntry] = [],
@@ -41,9 +44,10 @@ public struct SessionViewState: Equatable, Sendable {
         self.thoughts = thoughts
     }
 
-    /// 1 件の `SessionUpdate` を状態に適用する。
+    /// Applies a single `SessionUpdate` to the state.
     ///
-    /// 全域的 — すべての `SessionUpdate` ケースを網羅的に処理する。ストリーム全体のテストはこのメソッドを通じて完結する。
+    /// Total — it handles every `SessionUpdate` case exhaustively. Testing the whole stream is
+    /// complete through this one method.
     public mutating func apply(_ update: SessionUpdate) {
         switch update {
         case let .toolCall(call):
@@ -82,7 +86,7 @@ public struct SessionViewState: Equatable, Sendable {
         }
     }
 
-    /// 一連の `SessionUpdate` シーケンスをリデュースして新しい `SessionViewState` を生成する。
+    /// Reduces a sequence of `SessionUpdate`s into a new `SessionViewState`.
     public static func reduce(_ updates: some Sequence<SessionUpdate>) -> SessionViewState {
         var state = SessionViewState()
         for update in updates { state.apply(update) }
@@ -90,20 +94,20 @@ public struct SessionViewState: Equatable, Sendable {
     }
 }
 
-/// UI 向けのツールコール表現。
+/// A tool call as the UI sees it.
 ///
-/// ID・タイトル・種別・ステータスを保持し、View がアイコンとローカライズ済み文言に変換する。
+/// It holds the id, title, kind and status; the view turns those into an icon and localized wording.
 public struct ToolCallView: Equatable, Sendable, Identifiable {
-    /// ツール呼び出しの識別子。アップデートを既存の呼び出しに相関付けるキー。
+    /// The identifier of the tool call. The key that correlates an update with an existing call.
     public let id: ToolCallId
-    /// エージェントが報告したツール呼び出しの見出し。アップデートで更新されうる。
+    /// The heading for the tool call as the agent reported it. An update can change it.
     public var title: String
-    /// ツールの種別。アイコンやローカライズ済み文言への変換に使う。
+    /// The kind of tool. Used to pick an icon and localized wording.
     public var kind: ToolKind
-    /// 実行状態（進行中・完了・失敗など）。
+    /// The execution status (in progress, completed, failed, and so on).
     public var status: ToolCallStatus
 
-    /// 各フィールドを指定してツールコール表現を生成する。
+    /// Creates the tool call representation from each field.
     public init(id: ToolCallId, title: String, kind: ToolKind, status: ToolCallStatus) {
         self.id = id
         self.title = title
@@ -113,7 +117,7 @@ public struct ToolCallView: Equatable, Sendable, Identifiable {
 }
 
 private extension ContentChunk {
-    /// コンテンツがテキストブロックの場合にプレーンテキストを返す。
+    /// Returns the plain text when the content is a text block.
     var text: String? {
         if case let .text(value) = content { return value.text }
         return nil
