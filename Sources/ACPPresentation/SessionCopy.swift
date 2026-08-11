@@ -33,7 +33,9 @@ public enum SessionCopy {
         }
     }
 
+    /// `String(localized:)` と `String.LocalizationValue` は Apple プラットフォーム専用のため、
+    /// 全プラットフォームにある `NSLocalizedString` で `.lproj` を引く。
     private static func localized(_ key: String) -> String {
-        String(localized: String.LocalizationValue(key), bundle: .module)
+        NSLocalizedString(key, bundle: .module, comment: "")
     }
 }

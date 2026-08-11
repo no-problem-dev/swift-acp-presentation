@@ -36,6 +36,7 @@ The domain (agent/protocol) emits only semantics (`tool_call.kind == .search`), 
 | tvOS | 16.0 |
 | watchOS | 9.0 |
 | visionOS | 1.0 |
+| Linux | Swift 6.0 toolchain |
 
 ## Installation
 

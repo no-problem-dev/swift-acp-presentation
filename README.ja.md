@@ -36,6 +36,7 @@ ACP の `session/update` ストリームを UI-agnostic な `SessionViewState` �
 | tvOS | 16.0 |
 | watchOS | 9.0 |
 | visionOS | 1.0 |
+| Linux | Swift 6.0 toolchain |
 
 ## インストール
 
