@@ -1,15 +1,10 @@
----
-title: swift-acp-presentation README
-created: 2026-06-27
-tags: [swift, acp, presentation, spm]
-status: active
----
-
 [English](./README.md) | 日本語
 
 # swift-acp-presentation
 
-> ACP の `session/update` ストリームを UI-agnostic な `SessionViewState` に変換し、ユーザー向け文言をホスト側でカプセル化するプレゼンテーション層パッケージ。
+ACP の `session/update` ストリームを UI-agnostic な `SessionViewState` に変換し、ユーザー向け文言をホスト側でカプセル化するプレゼンテーション層パッケージ。
+
+> **非公式。** Agent Client Protocol の作者とは何の関係もなく、承認も受けていない。土台にしているのは同プロトコルの非公式な Swift 実装である。仕様に準拠することはこのプロジェクトの目標ではない。
 
 ## 概要
 
