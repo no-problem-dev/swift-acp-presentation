@@ -45,7 +45,7 @@ Add the dependency to your `Package.swift`.
 dependencies: [
     .package(
         url: "https://github.com/no-problem-dev/swift-acp-presentation.git",
-        from: "0.1.0"
+        .upToNextMinor(from: "0.1.0")
     ),
 ],
 targets: [

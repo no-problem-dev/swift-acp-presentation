@@ -45,7 +45,7 @@ ACP の `session/update` ストリームを UI-agnostic な `SessionViewState` �
 dependencies: [
     .package(
         url: "https://github.com/no-problem-dev/swift-acp-presentation.git",
-        from: "0.1.0"
+        .upToNextMinor(from: "0.1.0")
     ),
 ],
 targets: [
