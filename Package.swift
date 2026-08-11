@@ -17,7 +17,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.4.0"),
-        .package(url: "https://github.com/no-problem-dev/swift-acp.git", from: "0.2.0"),
+        .package(url: "https://github.com/no-problem-dev/swift-acp.git", .upToNextMinor(from: "0.2.0")),
     ],
     targets: [
         .target(
