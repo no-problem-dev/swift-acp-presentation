@@ -184,7 +184,7 @@ struct SessionStatusView: View {
 ## ドキュメント
 
 API リファレンスは
-[GitHub Pages](https://no-problem-dev.github.io/swift-acp-presentation/documentation/acppresentation/) にある。
+DocC カタログ [`Sources/ACPPresentation/Documentation.docc`](Sources/ACPPresentation/Documentation.docc) にある。
 
 ## アーキテクチャ上の位置づけ
 

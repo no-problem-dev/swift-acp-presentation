@@ -183,8 +183,8 @@ struct SessionStatusView: View {
 
 ## Documentation
 
-The API reference lives on
-[GitHub Pages](https://no-problem-dev.github.io/swift-acp-presentation/documentation/acppresentation/).
+The API reference lives in
+the DocC catalog [`Sources/ACPPresentation/Documentation.docc`](Sources/ACPPresentation/Documentation.docc).
 
 ## Architecture
 
